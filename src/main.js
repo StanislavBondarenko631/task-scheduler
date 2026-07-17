@@ -14,3 +14,14 @@
       <p>Текст</p>
   </li>
 */
+import { refs } from './js/refs.js';
+
+// Создаем функцию, которая будет срабатывать при отправке формы
+function onFormSubmit(event) {
+  // Отменяем стандартное поведение формы (перезагрузку страницы)
+  event.preventDefault();
+
+  console.log('Форма отправилась! Кнопка Add нажата!');
+}
+
+refs.taskForm.addEventListener('submit', onFormSubmit);
