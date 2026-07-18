@@ -1,0 +1,18 @@
+//  <li class="task-list-item">
+//       <button class="task-list-item-btn">Delete</button>
+//       <h3>Заголовок</h3>
+//       <p>Текст</p>
+//   </li>
+// Обрати внимание: кнопке "Delete" мы сразу добавим специальный атрибут data-id="${task.id}". Это наш скрытый маркер. Когда пользователь нажмет "Delete", программа по этому id поймет, какую именно задачу нужно удалить!
+
+// Функция принимает объект задачи и возвращает HTML-строку
+export function createTaskMarkup(task) {
+  return `
+    <li class="task-list-item">
+    <button class="task-list-item-btn" data-id="${task.id}">Delete</button>
+    <h3>${task.name}</h3>
+    <p>${task.description}</p>
+</li>
+
+    `;
+}
