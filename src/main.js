@@ -15,9 +15,48 @@
   </li>
 */
 
-import { createTaskMarkup } from './js/render-tasks.js';
+// import { createTaskMarkup } from './js/render-tasks.js'; // так как в процессе перенесли в послеждний импорт !!!
 import { refs } from './js/refs.js';
 import { createTaskObject } from './js/tasks.js';
+import {
+  saveToLocalStorage,
+  loadFromLocalStorage,
+} from './js/local-storage-api.js';
+import { createTaskMarkup, renderTaskList } from './js/render-tasks.js';
+
+// Создаем массив, где будут временно храниться все объекты наших задач
+//Делаем на моменте работы с localStorage
+let tasks = [];
+
+//НАЧАЛО КОДА - Когда пишем createTaskMarkup, renderTaskList
+// Функция, которая запускается один раз при старте приложения
+function init() {
+  // --- ПРОВЕРКА И ПРИМЕНЕНИЕ ТЕМЫ ПРИ ЗАГРУЗКЕ ---
+  const savedTheme = loadFromLocalStorage('theme');
+
+  if (savedTheme === 'light') {
+    // Если пользователь выбрал светлую тему, убираем дефолтный темный класс и ставим светлый
+    document.body.classList.remove('theme-dark');
+    document.body.classList.add('theme-light');
+  } else {
+    // Если в памяти 'dark' или там вообще пусто — гарантируем, что стоит темная тема
+    document.body.classList.remove('theme-light');
+    document.body.classList.add('theme-dark');
+  }
+  // --- КОНЕЦ ПРОВЕРКИ ТЕМЫ ---
+
+  const savedTasks = loadFromLocalStorage('tasks');
+  if (savedTasks) {
+    tasks = savedTasks;
+    const markup = renderTaskList(tasks);
+    refs.taskList.innerHTML = markup;
+  } else {
+    refs.taskList.innerHTML = '';
+  }
+}
+// Вызываем функцию init(), чтобы она сработала прямо сейчас при загрузке скрипта
+init();
+//!!!!!   Конец кода по createTaskMarkup, renderTaskList
 
 // Создаем функцию, которая будет срабатывать при отправке формы
 function onFormSubmit(event) {
@@ -48,6 +87,11 @@ function onFormSubmit(event) {
 
   console.log(newTask);
 
+  // Добавляем новый объект задачи в наш массив tasks. ПИШЕМ ПРИ РАБОТЕ С localStorage
+  tasks.push(newTask);
+  // Сохраняем обновленный массив в localStorage под ключом 'tasks'
+  saveToLocalStorage('tasks', tasks);
+
   event.currentTarget.reset(); // очищаем поля после добавления задания
 }
 
@@ -65,6 +109,17 @@ function onTaskListClick(event) {
   // Если код дошел досюда, значит клик точно был по кнопке Delete!
   console.log('Кликнули по кнопке Delete!');
 
+  // --- НАЧАЛО НОВОГО КОДА ДЛЯ ПАМЯТИ --- ПИШЕМ ПРИ РАБОТЕ С local
+  // 1. Достаем уникальный id из атрибута data-id кнопки, на которую кликнули
+  // И сразу переводим его из строки в число через Number()
+  const taskId = Number(event.target.dataset.id);
+  // 2. Фильтруем наш массив tasks.
+  // Оставляем только те задачи, у которых id НЕ РАВЕН id удаленной задачи
+  tasks = tasks.filter(task => task.id !== taskId);
+  // 3. Перезаписываем обновленный массив в localStorage
+  saveToLocalStorage('tasks', tasks);
+  // --- КОНЕЦ localStorage КОДА ---
+
   // Находим всю карточку <li>, в которой лежит эта кнопка
   const listItem = event.target.closest('.task-list-item');
 
@@ -74,3 +129,21 @@ function onTaskListClick(event) {
 
 // 2. Вешаем слушатель клика на весь список UL
 refs.taskList.addEventListener('click', onTaskListClick);
+
+// Пишем логику переключения темы
+function onThemeButtonClick() {
+  // Проверяем, есть ли сейчас на body класс темной темы
+  if (document.body.classList.contains('theme-dark')) {
+    // Если есть темный — меняем его на светлый
+    document.body.classList.replace('theme-dark', 'theme-light');
+    // Сохраняем в память строчку 'light'
+    saveToLocalStorage('theme', 'light');
+  } else {
+    // Если темного нет (значит сейчас светлый) — меняем обратно на темный
+    document.body.classList.replace('theme-light', 'theme-dark');
+    // Сохраняем в память строчку 'dark'
+    saveToLocalStorage('theme', 'dark');
+  }
+}
+// 2. Вешаем слушатель клика на кнопку переключения темы
+refs.themeButton.addEventListener('click', onThemeButtonClick);

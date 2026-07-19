@@ -16,3 +16,11 @@ export function createTaskMarkup(task) {
 
     `;
 }
+
+// РАБОТА С localStorage
+// Функция принимает МАССИВ задач и возвращает одну общую HTML-строку для всех задач
+export function renderTaskList(tasksArray) {
+  // Проходим по каждому элементу массива, вызываем для него createTaskMarkup,
+  // а затем склеиваем получившиеся карточки в единую строку без запятых
+  return tasksArray.map(task => createTaskMarkup(task)).join('');
+}
