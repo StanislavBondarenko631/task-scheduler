@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/blended-js-9-10mod/",
+    "build": "vite build --base=/task-scheduler/",
     "preview": "vite preview"
   },
   "devDependencies": {
